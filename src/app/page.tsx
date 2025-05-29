@@ -17,7 +17,7 @@ export default function Home() {
   return (
     <>
       <Navbar />
-      <main className="min-h-screen pt-16 md:pt-20">
+      <main className="min-h-screen ">
         <HeroSection />
         <BuildWithSection />
         <PodcastSection />

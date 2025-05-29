@@ -34,7 +34,7 @@ export default function Navbar() {
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.5 }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      className={`sticky top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled ? "bg-[#380009] backdrop-blur-md shadow-sm" : "bg-[#FEA996]"
       }`}
     >

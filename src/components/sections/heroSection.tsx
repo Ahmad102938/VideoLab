@@ -25,7 +25,7 @@ export default function HeroSection() {
   return (
     <section
       ref={ref}
-      className="w-full py-12 md:py-16 lg:py-20 overflow-hidden bg-[#FEA996]"
+      className="w-full mt-0 py-12 md:py-16 lg:py-10 overflow-hidden bg-[#FEA996]"
     >
       <div className="container px-4 md:px-6">
         <div className="grid gap-6 lg:grid-cols-2 lg:gap-12 items-center">
@@ -68,6 +68,7 @@ Perfect for social media content, video ads, and more
             >
               <Button
                 size="lg"
+                onClick={() => window.location.href = "/sign-up"}
                 className="bg-[#CD1B17] hover:bg-[#380009] text-white rounded-full px-8 transform transition-transform hover:scale-105 active:scale-95"
               >
                 Get Started
