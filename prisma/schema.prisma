@@ -1,0 +1,60 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String    @id                         // Clerk's userId (e.g. "user_2eLxk38d9x")
+  email      String    @unique
+  name       String?
+  createdAt  DateTime  @default(now())
+  podcasts   Podcast[]
+}
+
+model Podcast {
+  id              String            @id @default(cuid())
+  userId          String
+  title           String
+  description     String
+  status          String            @default("DRAFT_PENDING_REVIEW")
+  finalAudioUrl   String?
+  createdAt       DateTime          @default(now())
+  hostAssignments HostAssignment[]
+  script          Script?
+
+  user            User              @relation(fields: [userId], references: [id])
+}
+
+model HostAssignment {
+  id          String   @id @default(cuid())
+  podcastId   String
+  hostName    String
+  voiceId     String
+  provider    String
+  segmentIndex Int
+
+  podcast     Podcast  @relation(fields: [podcastId], references: [id])
+
+  @@index([podcastId])
+}
+
+model Script {
+  id         String    @id @default(cuid())
+  podcastId  String    @unique
+  text       String    // you could change this to Json or JsonB if you store segments
+  status     String    @default("READY_FOR_SYNTHESIS")
+  updatedAt  DateTime  @updatedAt
+
+  podcast    Podcast   @relation(fields: [podcastId], references: [id])
+}
