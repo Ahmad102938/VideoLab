@@ -7,6 +7,7 @@ interface PodcastPayload {
   hosts: string[];
   style: string;
   length_minutes: number;
+  description: string;
   user_id: string;
 }
 
@@ -21,7 +22,9 @@ export default function PodcastForm({ formData, setFormData }: PodcastFormProps)
   const [error, setError] = useState<string | null>(null);
   const [scriptId, setScriptId] = useState<string | null>(null);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -55,7 +58,7 @@ export default function PodcastForm({ formData, setFormData }: PodcastFormProps)
     setLoading(true);
     setError(null);
     setScriptId(null);
-
+    console.log('Submitting form data:', formData);
     try {
       const response = await fetch('/api/generate-script', {
         method: 'POST',
@@ -162,6 +165,18 @@ export default function PodcastForm({ formData, setFormData }: PodcastFormProps)
             min="1"
           />
         </div>
+        <div className="mb-4">
+        <label className="block mb-1 font-medium">Description</label>
+        <textarea
+            name="description"
+            value={formData.description}
+            onChange={handleInputChange}
+          className="w-full border p-2 rounded"
+          rows={3}
+          placeholder="Brief description of your podcast topic..."
+          required
+        />
+      </div>
         <div className="col-span-1 md:col-span-2 flex justify-center mt-4">
           <button
             type="submit"

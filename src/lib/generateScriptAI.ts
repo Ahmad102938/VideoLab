@@ -1,14 +1,20 @@
+// src/lib/generateScriptAI.ts
+
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { PodcastPayload, Script } from "@/types";
 
-export async function generateScriptWithAI(payload: PodcastPayload): Promise<Script> {
-  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY as string);
+export async function generateScriptWithAI(
+  payload: PodcastPayload
+): Promise<{ text: string }> {
+  const genAI = new GoogleGenerativeAI(
+    process.env.GEMINI_API_KEY as string
+  );
   const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
   const prompt = `
 Generate a podcast script with the following details:
 - Title: ${payload.title}
-- Hosts: ${payload.hosts.join(', ')}
+- Hosts: ${payload.hosts.join(", ")}
 - Style: ${payload.style}
 - Approximate length: ${payload.length_minutes} minutes
 

@@ -1,15 +1,17 @@
+// src/services/scriptGenerator.ts
+
 import { generateScriptWithAI } from "@/lib/generateScriptAI";
-import { PodcastPayload } from "@/types";
-import { Script } from "@/types";
+import { PodcastPayload, Script } from "@/types";
 
 export class ScriptGeneratorService {
-    async generateScript(payLoad: PodcastPayload): Promise<Script> {
-        //generating script using AI
-        const ScriptDraft = await generateScriptWithAI(payLoad);
-        if(ScriptDraft) {
-            return ScriptDraft;
-        } else {
-            throw new Error("Failed to generate script");
-        }
+  async generateScript(
+    payload: PodcastPayload
+  ): Promise<{ text: string }> {
+    const ScriptDraft = await generateScriptWithAI(payload);
+    if (ScriptDraft) {
+      return ScriptDraft; // { text: "Alice: …\nBob: …" }
+    } else {
+      throw new Error("Failed to generate script");
     }
+  }
 }

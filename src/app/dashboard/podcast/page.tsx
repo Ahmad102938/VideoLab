@@ -14,6 +14,7 @@ interface PodcastPayload {
   hosts: string[];
   style: string;
   length_minutes: number;
+  description?: string;
   user_id: string;
 }
 
@@ -33,6 +34,7 @@ export default function Home() {
     hosts: [],
     style: '',
     length_minutes: 0,
+    description: '',
     user_id: userId,
   });
 
@@ -63,6 +65,7 @@ export default function Home() {
       hosts: [],
       style: '',
       length_minutes: 0,
+      description: '',
       user_id: isLoaded && isSignedIn ? user.id : 'guestwhy123',
     });
   };

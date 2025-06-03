@@ -15,46 +15,54 @@ datasource db {
 }
 
 model User {
-  id         String    @id                         // Clerk's userId (e.g. "user_2eLxk38d9x")
-  email      String    @unique
-  name       String?
-  createdAt  DateTime  @default(now())
-  podcasts   Podcast[]
+  id             String    @id @default(cuid())
+  email          String    @unique
+  name           String?
+  createdAt      DateTime  @default(now())
+  podcasts       Podcast[]
 }
 
 model Podcast {
-  id              String            @id @default(cuid())
+  id              String             @id @default(cuid())
   userId          String
   title           String
-  description     String @default("")
-  status          String            @default("DRAFT_PENDING_REVIEW")
+  description     String             @default("")
+  hosts           String[]           @default([])        // <-- “Alice”, “Bob”, etc.
+  status          String             @default("DRAFT_PENDING_REVIEW")
   finalAudioUrl   String?
-  createdAt       DateTime          @default(now())
+  createdAt       DateTime           @default(now())
   hostAssignments HostAssignment[]
   script          Script?
 
-  user            User              @relation(fields: [userId], references: [id])
+  user            User               @relation(fields: [userId], references: [id])
 }
 
 model HostAssignment {
-  id          String   @id @default(cuid())
-  podcastId   String
-  hostName    String
-  voiceId     String
-  provider    String
-  segmentIndex Int
+  id            String    @id @default(cuid())
+  podcastId     String
+  hostName      String
+  voiceId       String?                      // unknown until user picks
+  provider      String?                      // unknown until user picks
+  segmentIndex  Int?       @default(0)        // if you want per‐segment detail
 
-  podcast     Podcast  @relation(fields: [podcastId], references: [id])
+  podcast       Podcast    @relation(fields: [podcastId], references: [id])
 
   @@index([podcastId])
 }
 
 model Script {
-  id         String    @id @default(cuid())
-  podcastId  String    @unique
-  text       String    // you could change this to Json or JsonB if you store segments
-  status     String    @default("READY_FOR_SYNTHESIS")
-  updatedAt  DateTime  @updatedAt
+  id          String    @id @default(cuid())
+  podcastId   String    @unique
 
-  podcast    Podcast   @relation(fields: [podcastId], references: [id])
+  // Entire transcript in one string:
+  fullText    String
+
+  // JSON array of segment objects: [{hostName, text, segmentIndex}, …]
+  segments    Json
+
+  // Once the user assigns voices, flip to “SYNTHESIS_PENDING”
+  status      String    @default("READY_FOR_ASSIGNMENT")
+  updatedAt   DateTime  @updatedAt
+
+  podcast     Podcast   @relation(fields: [podcastId], references: [id])
 }

@@ -8,17 +8,15 @@ export async function GET(
   req: NextRequest,
   { params }: { params: { podcastId: string } }
 ) {
-  // 1) “params” is lazy, so await it before destructuring
   const { podcastId } = await params;
-
-  // 2) Auth check
   const { userId } = getAuth(req);
+
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   try {
-    // 3) Fetch the podcast (including its owner and its HostAssignment rows)
+    // Fetch the Podcast with both `hosts` array and any existing `hostAssignments`
     const podcast = await prisma.podcast.findUnique({
       where: { id: podcastId },
       select: {
@@ -28,7 +26,12 @@ export async function GET(
         status: true,
         createdAt: true,
         finalAudioUrl: true,
-        userId: true, // so we can check ownership
+        userId: true,
+
+        // the stored hosts[] field
+        hosts: true,
+
+        // any existing HostAssignment rows
         hostAssignments: {
           select: {
             hostName: true,
@@ -42,13 +45,29 @@ export async function GET(
     if (!podcast) {
       return NextResponse.json({ error: "Podcast not found" }, { status: 404 });
     }
-
-    // 4) Ownership check
     if (podcast.userId !== userId) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    // 5) Return only the fields the frontend needs
+    // If there are NO HostAssignment rows, fall back to the bare hosts[]
+    let assignments: Array<{ hostName: string; voiceId: string; provider: string }> = [];
+
+    if (podcast.hostAssignments.length > 0) {
+      // Use the real assignments
+      assignments = podcast.hostAssignments.map((ha) => ({
+        hostName: ha.hostName,
+        voiceId: ha.voiceId || "",
+        provider: ha.provider || "",
+      }));
+    } else {
+      // No assignments yet → build one per name in podcast.hosts
+      assignments = podcast.hosts.map((h) => ({
+        hostName: h,
+        voiceId: "",
+        provider: "",
+      }));
+    }
+
     return NextResponse.json(
       {
         podcast: {
@@ -58,11 +77,7 @@ export async function GET(
           status: podcast.status,
           createdAt: podcast.createdAt,
           finalAudioUrl: podcast.finalAudioUrl,
-          hosts: podcast.hostAssignments.map((ha) => ({
-            hostName: ha.hostName,
-            voiceId: ha.voiceId,
-            provider: ha.provider,
-          })),
+          hosts: assignments, // <-- the array we just built
         },
       },
       { status: 200 }

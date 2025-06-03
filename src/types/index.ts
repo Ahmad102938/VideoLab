@@ -1,16 +1,16 @@
 export interface PodcastPayload {
   title: string;
-  hosts: string[];
-  style: string;
+  description: string;          // new, since Prisma’s Podcast.description is non‐null with default ""
+  hosts: string[];              // e.g. ["Alice", "Bob"]
+  style: string;                // e.g. "conversational"
   length_minutes: number;
-  user_id: string;
+  user_id: string;              // should match Clerk userId
 }
-
 export interface Script {
-  id: string;
-  user_id: string;
-  title: string;
-  status: 'DRAFT_PENDING_REVIEW' | 'APPROVED' | 'REJECTED';
-  script_draft: string;
-  created_at: Date;
+  fullText: string;             // the entire generated transcript
+  segments: {
+    hostName: string;           // e.g. "Alice" or "Bob"
+    text: string;               // only that host’s spoken text
+    segmentIndex: number;
+  }[];
 }
