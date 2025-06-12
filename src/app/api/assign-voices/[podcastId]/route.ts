@@ -8,7 +8,8 @@ type VoiceAssignment = {
   provider: string;
 };
 
-export async function POST(req: NextRequest, { params }: { params: { podcastId: string } }) {
+export async function POST(req: NextRequest, context: { params: { podcastId: string } }) {
+  const params = await context.params;
   const { podcastId } = params;
   const { userId } = getAuth(req);
 

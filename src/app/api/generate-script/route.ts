@@ -1,10 +1,10 @@
 // src/app/api/generate-script/route.ts
-
+export const runtime = "nodejs";
 import { NextRequest, NextResponse } from "next/server";
 import { getAuth, currentUser } from "@clerk/nextjs/server";
 import { PodcastPayload, Script } from "@/types";
 import { ScriptGeneratorService } from "@/services/scriptGenerator";
-import prisma from "@/lib/prisma";
+import prisma from "../../../lib/prisma";  
 
 /**
  * POST /api/generate-script
@@ -45,6 +45,9 @@ export async function POST(req: NextRequest) {
   if (!primaryEmail) {
     return NextResponse.json({ error: "No email found for user" }, { status: 400 });
   }
+
+  console.log("🔍 prisma is", prisma);
+console.log("🔍 prisma.user is", (prisma as any)?.user);
 
   try {
     await prisma.user.upsert({

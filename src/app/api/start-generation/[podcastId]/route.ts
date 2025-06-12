@@ -1,10 +1,11 @@
-// src/app/api/get-script/[podcastId]/route.ts
+// src/app/api/start-generation/[podcastId]/route.ts
 
 import { NextRequest, NextResponse } from "next/server";
 import { getAuth } from "@clerk/nextjs/server";
 import prisma from "@/lib/prisma";
+import { synthesisQueue } from "@/lib/queue";
 
-export async function GET(
+export async function POST(
   req: NextRequest,
   { params }: { params: { podcastId: string } }
 ) {
@@ -13,7 +14,8 @@ export async function GET(
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-  console.log("Looking for podcastId:", podcastId);
+
+  // Verify script exists & belongs to this user
   const scriptRecord = await prisma.script.findUnique({
     where: { podcastId },
     include: {
@@ -22,23 +24,34 @@ export async function GET(
       },
     },
   });
-  console.log("🔍 scriptRecord is", scriptRecord);
   if (!scriptRecord) {
     return NextResponse.json({ error: "Script not found" }, { status: 404 });
   }
   if (scriptRecord.podcast.userId !== userId) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
+  if (scriptRecord.status !== "READY_FOR_ASSIGNMENT") {
+    return NextResponse.json(
+      { error: `Script not ready (status: ${scriptRecord.status})` },
+      { status: 400 }
+    );
+  }
+
+  // Update status → SYNTHESIS_QUEUED
+  await prisma.script.update({
+    where: { podcastId },
+    data: { status: "SYNTHESIS_QUEUED" },
+  });
+  await prisma.podcast.update({
+    where: { id: podcastId },
+    data: { status: "SYNTHESIS_QUEUED" },
+  });
+
+  // Enqueue a job
+  await synthesisQueue.add("synthesize-podcast", { podcastId });
 
   return NextResponse.json(
-    {
-      script: {
-        fullText: scriptRecord.fullText,
-        segments: scriptRecord.segments,
-        audioUrls: scriptRecord.audioUrls || [],
-        status: scriptRecord.status,
-      },
-    },
+    { success: true, message: "Synthesis job queued." },
     { status: 200 }
   );
 }

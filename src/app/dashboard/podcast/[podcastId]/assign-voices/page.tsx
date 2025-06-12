@@ -15,63 +15,92 @@ type VoiceOption = {
   name: string;
   languageCode: string;
   gender: string;
-  provider: string; // "Amazon Polly"
+  provider: string;
 };
 
 export default function AssignVoicesPage() {
   const { getToken } = useAuth();
-  const { podcastId } = useParams();
+  const { podcastId } = useParams() as { podcastId: string };
   const router = useRouter();
 
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [availableVoices, setAvailableVoices] = useState<VoiceOption[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
   const [selectedHostIndex, setSelectedHostIndex] = useState<number>(-1);
 
   useEffect(() => {
+    let isMounted = true;
+
     async function loadData() {
       setLoading(true);
-      const token = await getToken();
+      setError(null);
+      try {
+        const token = await getToken();
 
-      // Fetch hosts and existing assignments
-      const resHosts = await fetch(`/api/get-podcast/${podcastId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (resHosts.ok) {
+        // Fetch hosts and existing assignments
+        const resHosts = await fetch(`/api/get-podcast/${podcastId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!resHosts.ok) {
+          throw new Error(`Failed to fetch podcast: ${resHosts.status} ${await resHosts.text()}`);
+        }
         const { podcast } = await resHosts.json();
-        setAssignments(
-          podcast.hosts.map((h: { hostName: string; voiceId: string; provider: string }) => ({
-            hostName: h.hostName,
-            voiceId: h.voiceId,
-            provider: h.provider,
-          }))
-        );
-      } else {
-        console.error("GET /api/get-podcast failed:", resHosts.status, await resHosts.text());
-      }
+        if (isMounted) {
+          setAssignments(
+  (podcast.hostAssignments ?? podcast.hosts ?? []).map((h: any) => ({
+    hostName: typeof h === "string" ? h : h.hostName,
+    voiceId: h.voiceId || "",
+    provider: h.provider || "",
+  }))
+);
+        }
 
-      // Fetch all Polly voices
-      const resVoices = await fetch("/api/polly-voices");
-      if (resVoices.ok) {
+        // Fetch all Polly voices
+        const resVoices = await fetch("/api/polly-voices", {
+          headers: { Authorization: `Bearer ${token}` }, // Add token if required
+        });
+        if (!resVoices.ok) {
+          throw new Error(`Failed to fetch Polly voices: ${resVoices.status} ${await resVoices.text()}`);
+        }
         const { voices } = await resVoices.json();
-        setAvailableVoices(voices);
-      } else {
-        console.error("Failed to fetch Polly voices:", resVoices.status);
+        if (isMounted) {
+          setAvailableVoices(voices);
+        }
+      } catch (err) {
+        if (isMounted) {
+          setError((err as Error).message);
+          console.error(err);
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
       }
-
-      setLoading(false);
     }
     loadData();
+
+    return () => {
+      isMounted = false;
+    };
   }, [podcastId, getToken]);
 
   function playSample(voiceId: string) {
     fetch(`/api/polly-demo?voiceId=${voiceId}`)
-      .then((r) => r.json())
+      .then((r) => {
+        if (!r.ok) {
+          throw new Error(`Failed to fetch demo: ${r.status}`);
+        }
+        return r.json();
+      })
       .then(({ demoUrl }) => {
         const audio = new Audio(demoUrl);
         audio.play().catch(console.error);
       })
-      .catch(console.error);
+      .catch((err) => {
+        console.error("Error playing sample:", err);
+        alert("Failed to play voice sample.");
+      });
   }
 
   async function handleSubmit() {
@@ -82,22 +111,51 @@ export default function AssignVoicesPage() {
       }
     }
 
-    const token = await getToken();
-    const res = await fetch(`/api/assign-voices/${podcastId}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ assignments }),
-    });
+    setLoading(true);
+    try {
+      const token = await getToken();
+      const res = await fetch(`/api/assign-voices/${podcastId}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ assignments }),
+      });
 
-    if (res.ok) {
+      if (!res.ok) {
+        throw new Error(`Failed to assign voices: ${await res.text()}`);
+      }
+
+      // Trigger TTS job
+      const ttsRes = await fetch(`/api/generate-tts`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ podcastId }),
+      });
+
+      if (!ttsRes.ok) {
+        throw new Error(`Failed to start TTS job: ${await ttsRes.text()}`);
+      }
+
       router.push(`/dashboard/podcast/${podcastId}/status`);
-    } else {
-      console.error("Failed to assign voices:", await res.text());
-      alert("Error saving voice assignments.");
+    } catch (err) {
+      console.error("Error in submission:", err);
+      alert(`Error: ${(err as Error).message}`);
+      setLoading(false);
     }
+  }
+
+  if (error) {
+    return (
+      <main className="p-4 max-w-3xl mx-auto">
+        <h1 className="text-2xl font-bold mb-4">Assign Voices to Hosts</h1>
+        <p className="text-red-500">Error: {error}</p>
+      </main>
+    );
   }
 
   if (loading) {
@@ -159,9 +217,12 @@ export default function AssignVoicesPage() {
 
       <button
         onClick={handleSubmit}
-        className="mt-8 px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600"
+        disabled={loading}
+        className={`mt-8 px-6 py-3 rounded-lg text-white ${
+          loading ? "bg-gray-400 cursor-not-allowed" : "bg-green-500 hover:bg-green-600"
+        }`}
       >
-        Save Voice Assignments & Continue
+        {loading ? "Processing..." : "Save Voice Assignments & Continue"}
       </button>
     </main>
   );
@@ -176,7 +237,7 @@ function VoiceSelectionModal({
   playSample,
 }: {
   hostName: string;
-  currentVoiceId: string | null;
+  currentVoiceId: string;
   availableVoices: VoiceOption[];
   onSelect: (voiceId: string, provider: string) => void;
   onClose: () => void;

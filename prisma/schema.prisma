@@ -51,18 +51,13 @@ model HostAssignment {
 }
 
 model Script {
-  id          String    @id @default(cuid())
-  podcastId   String    @unique
+  id         String   @id @default(cuid())
+  podcastId  String   @unique
+  fullText   String
+  segments   Json          // array of { hostName, text, segmentIndex }
+  audioUrls  String[]  @default([])    // <— new: store each S3 URL per segment
+  status     String    @default("READY_FOR_ASSIGNMENT")
+  updatedAt  DateTime  @updatedAt
 
-  // Entire transcript in one string:
-  fullText    String
-
-  // JSON array of segment objects: [{hostName, text, segmentIndex}, …]
-  segments    Json
-
-  // Once the user assigns voices, flip to “SYNTHESIS_PENDING”
-  status      String    @default("READY_FOR_ASSIGNMENT")
-  updatedAt   DateTime  @updatedAt
-
-  podcast     Podcast   @relation(fields: [podcastId], references: [id])
+  podcast    Podcast   @relation(fields: [podcastId], references: [id])
 }
