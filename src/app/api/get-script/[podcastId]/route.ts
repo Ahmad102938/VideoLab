@@ -1,4 +1,3 @@
-// src/app/api/get-script/[podcastId]/route.ts
 
 import { NextRequest, NextResponse } from "next/server";
 import { getAuth } from "@clerk/nextjs/server";

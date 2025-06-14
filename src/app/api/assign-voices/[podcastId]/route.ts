@@ -46,26 +46,26 @@ export async function POST(req: NextRequest, context: { params: { podcastId: str
     }
   }
 
-  // Create HostAssignment rows in a transaction (or at least in bulk)
+
   try {
-    // First, optionally: clear out any existing assignments for this podcast
+    
     await prisma.hostAssignment.deleteMany({
       where: { podcastId: podcastId },
     });
 
-    // Now, bulk create
+    
     const created = await prisma.hostAssignment.createMany({
       data: assignments.map((a) => ({
         podcastId: podcastId,
         hostName: a.hostName,
         voiceId: a.voiceId,
         provider: a.provider,
-        // segmentIndex: 0 (if you need segments later)
+        
       })),
-      skipDuplicates: true, // just in case
+      skipDuplicates: true, 
     });
 
-    // Optionally, update Podcast.status to "SYNTHESIS_PENDING" or flip Script.status again:
+    
     await prisma.podcast.update({
       where: { id: podcastId },
       data: { status: "SYNTHESIS_PENDING" },

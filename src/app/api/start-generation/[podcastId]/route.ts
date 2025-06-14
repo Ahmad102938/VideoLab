@@ -1,4 +1,3 @@
-// src/app/api/start-generation/[podcastId]/route.ts
 
 import { NextRequest, NextResponse } from "next/server";
 import { getAuth } from "@clerk/nextjs/server";
@@ -50,8 +49,46 @@ export async function POST(
   // Enqueue a job
   await synthesisQueue.add("synthesize-podcast", { podcastId });
 
+  // Fetch the script and segments
+  const script = await prisma.script.findUnique({
+    where: { podcastId },
+  });
+  if (!script) {
+    return NextResponse.json({ error: "Script not found" }, { status: 404 });
+  }
+  type Segment = { hostName: string; text: string; segmentIndex: number };
+  const segments: Segment[] = Array.isArray(script.segments)
+    ? script.segments.filter(
+        (s): s is Segment =>
+          typeof s === "object" &&
+          s !== null &&
+          "hostName" in s &&
+          "text" in s &&
+          "segmentIndex" in s
+      )
+    : [];
+
+  // Fetch host assignments for provider/voiceId
+  const hostAssignments = await prisma.hostAssignment.findMany({ where: { podcastId } });
+  const hostMap = Object.fromEntries(
+    hostAssignments.map((h) => [h.hostName, { voiceId: h.voiceId, provider: h.provider }])
+  );
+
+  // Enqueue a job for each segment
+  for (const segment of segments) {
+    if (!segment) continue;
+    const assignment = hostMap[segment.hostName] || {};
+    await synthesisQueue.add("tts-job", {
+      podcastId,
+      text: segment.text,
+      segmentIndex: segment.segmentIndex,
+      voiceId: assignment.voiceId || "",
+      provider: assignment.provider || "",
+    });
+  }
+
   return NextResponse.json(
-    { success: true, message: "Synthesis job queued." },
+    { success: true, message: "Synthesis jobs queued." },
     { status: 200 }
   );
 }

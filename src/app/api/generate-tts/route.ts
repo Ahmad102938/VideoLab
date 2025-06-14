@@ -7,7 +7,7 @@ interface GenerateTTSRequest {
   podcastId: string;
 }
 
-// Define types for the segments stored in Script.segments (JSON)
+// Define types for the segments stored in Script.segments 
 interface Segment {
   hostName: string;
   text: string;
@@ -62,6 +62,7 @@ if (!Array.isArray(segments)) {
   return NextResponse.json({ message: 'Invalid segments format' }, { status: 500 });
 }
 
+console.log('Segments to process:', segments);
     // Queue jobs for each segment
     for (const segment of segments) {
       const { hostName, text, segmentIndex } = segment;

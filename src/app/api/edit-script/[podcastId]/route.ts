@@ -1,4 +1,3 @@
-// src/app/api/edit-script/[podcastId]/route.ts
 
 import { NextRequest, NextResponse } from "next/server";
 import { getAuth } from "@clerk/nextjs/server";
@@ -8,7 +7,7 @@ export async function PATCH(
   req: NextRequest,
   { params }: { params: { podcastId: string } }
 ) {
-  // ← Await params before using them:
+  // Await params before using them:
   const { podcastId } = await params;
   const { userId } = getAuth(req);
 

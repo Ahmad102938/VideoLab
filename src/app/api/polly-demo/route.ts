@@ -1,4 +1,3 @@
-// src/app/api/polly-demo/route.ts
 
 import { NextRequest, NextResponse } from "next/server";
 import polly from "@/lib/polly";
@@ -14,7 +13,7 @@ export async function GET(req: NextRequest) {
         OutputFormat: "mp3",
         Text: sampleText,
         VoiceId: voiceId,
-        Engine: "neural", // match the engines you listed above
+        Engine: "neural", 
       })
       .promise();
 

@@ -6,6 +6,7 @@
     "scripts": {
         "dev": "next dev",
         "start-worker": "tsx workers/synthesis.worker.ts",
+        "start-merge-worker": "tsx workers/merge.worker.ts",
         "dev:worker": "ts-node workers/synthesis.worker.ts",
         "build": "next build",
         "start": "next start",
@@ -21,9 +22,12 @@
         "@radix-ui/react-separator": "^1.1.7",
         "@radix-ui/react-slot": "^1.2.2",
         "@radix-ui/react-tooltip": "^1.2.7",
+        "@types/axios": "^0.14.4",
         "aws-sdk": "^2.1692.0",
+        "axios": "^1.10.0",
         "bullmq": "^5.53.2",
         "class-variance-authority": "^0.7.1",
+        "fluent-ffmpeg": "^2.1.3",
         "framer-motion": "^12.10.5",
         "ioredis": "^5.6.1",
         "lucide-react": "^0.509.0",
@@ -37,6 +41,7 @@
     "devDependencies": {
         "@eslint/eslintrc": "^3",
         "@tailwindcss/postcss": "^4",
+        "@types/fluent-ffmpeg": "^2.1.27",
         "@types/node": "^20.17.57",
         "@types/react": "^19",
         "@types/react-dom": "^19",

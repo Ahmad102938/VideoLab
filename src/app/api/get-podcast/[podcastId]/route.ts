@@ -1,4 +1,3 @@
-// src/app/api/get-podcast/[podcastId]/route.ts
 
 import { NextRequest, NextResponse } from "next/server";
 import { getAuth } from "@clerk/nextjs/server";
@@ -16,7 +15,6 @@ export async function GET(
   }
 
   try {
-    // Fetch the Podcast with both `hosts` array and any existing `hostAssignments`
     const podcast = await prisma.podcast.findUnique({
       where: { id: podcastId },
       select: {
@@ -27,11 +25,7 @@ export async function GET(
         createdAt: true,
         finalAudioUrl: true,
         userId: true,
-
-        // the stored hosts[] field
         hosts: true,
-
-        // any existing HostAssignment rows
         hostAssignments: {
           select: {
             hostName: true,
@@ -77,7 +71,7 @@ export async function GET(
           status: podcast.status,
           createdAt: podcast.createdAt,
           finalAudioUrl: podcast.finalAudioUrl,
-          hosts: assignments, // <-- the array we just built
+          hosts: assignments, 
         },
       },
       { status: 200 }
