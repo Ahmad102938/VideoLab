@@ -1,6 +1,7 @@
 // components/PodcastForm.tsx
 import { Dispatch, SetStateAction } from 'react';
 import { useState } from 'react';
+import { useRouter} from "next/navigation";
 
 interface PodcastPayload {
   title: string;
@@ -21,6 +22,8 @@ export default function PodcastForm({ formData, setFormData }: PodcastFormProps)
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [scriptId, setScriptId] = useState<string | null>(null);
+  const router = useRouter();
+  // const { podcastId } = useParams();
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -69,6 +72,9 @@ export default function PodcastForm({ formData, setFormData }: PodcastFormProps)
       });
 
       const data = await response.json();
+      if(response.ok) {
+        router.push(`/dashboard/podcast/${data.podcastId}/edit-script`);
+      }
 
       if (!response.ok) {
         throw new Error(data.message || 'Failed to generate script');
@@ -141,7 +147,7 @@ export default function PodcastForm({ formData, setFormData }: PodcastFormProps)
             name="style"
             value={formData.style}
             onChange={handleInputChange}
-            className="w-full p-3 bg-glass-white text-white rounded-xl border border-neon-purple/30 focus:outline-none focus:ring-2 focus:ring-neon-purple"
+            className="w-full p-3 bg-black text-white rounded-xl border border-neon-purple/30 focus:outline-none focus:ring-2 focus:ring-neon-purple"
             required
           >
             <option value="" disabled>

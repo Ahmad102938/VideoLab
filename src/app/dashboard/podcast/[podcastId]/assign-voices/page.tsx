@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useAuth } from "@clerk/nextjs";
 
+// Define types
 type Assignment = {
   hostName: string;
   voiceId: string;
@@ -48,17 +49,17 @@ export default function AssignVoicesPage() {
         const { podcast } = await resHosts.json();
         if (isMounted) {
           setAssignments(
-  (podcast.hostAssignments ?? podcast.hosts ?? []).map((h: any) => ({
-    hostName: typeof h === "string" ? h : h.hostName,
-    voiceId: h.voiceId || "",
-    provider: h.provider || "",
-  }))
-);
+            (podcast.hostAssignments ?? podcast.hosts ?? []).map((h: any) => ({
+              hostName: typeof h === "string" ? h : h.hostName,
+              voiceId: h.voiceId || "",
+              provider: h.provider || "",
+            }))
+          );
         }
 
         // Fetch all Polly voices
         const resVoices = await fetch("/api/polly-voices", {
-          headers: { Authorization: `Bearer ${token}` }, // Add token if required
+          headers: { Authorization: `Bearer ${token}` },
         });
         if (!resVoices.ok) {
           throw new Error(`Failed to fetch Polly voices: ${resVoices.status} ${await resVoices.text()}`);
@@ -151,79 +152,131 @@ export default function AssignVoicesPage() {
 
   if (error) {
     return (
-      <main className="p-4 max-w-3xl mx-auto">
-        <h1 className="text-2xl font-bold mb-4">Assign Voices to Hosts</h1>
-        <p className="text-red-500">Error: {error}</p>
+      <main className="min-h-screen bg-[#121212] p-4">
+        <div className="max-w-6xl mx-auto">
+          <h1 className="text-4xl font-bold text-white mb-4">Assign Voices to Hosts</h1>
+          <p className="text-red-500">Error: {error}</p>
+        </div>
       </main>
     );
   }
 
   if (loading) {
     return (
-      <main className="p-4 max-w-3xl mx-auto">
-        <h1 className="text-2xl font-bold mb-4">Assign Voices to Hosts</h1>
-        <p>Loading hosts and Polly voices…</p>
+      <main className="min-h-screen bg-[#121212] p-4">
+        <div className="max-w-6xl mx-auto">
+          <h1 className="text-4xl font-bold text-white mb-4">Assign Voices to Hosts</h1>
+          <div className="space-y-4">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="bg-[#1a1a1a] h-32 rounded-lg animate-pulse"></div>
+            ))}
+          </div>
+        </div>
       </main>
     );
   }
 
   return (
-    <main className="p-4 max-w-3xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Assign Voices to Hosts</h1>
+    <main className="min-h-screen bg-[#121212] p-4 md:p-6 font-orbitron">
+      <div className="max-w-6xl mx-auto">
+        {/* Header */}
+        <header className="fixed top-0 left-0 right-0 z-10 bg-[#121212]/90 backdrop-blur-md p-4 flex justify-between items-center">
+          <button
+            onClick={() => router.push("/dashboard")}
+            className="text-[#fff] hover:text-[#ffffffc2] transition"
+          >
+            ← Back
+          </button>
+          <h1 className="text-2xl md:text-4xl font-bold text-white text-center drop-shadow-md">
+            Assign Voices to Hosts
+          </h1>
+          <button
+            onClick={handleSubmit}
+            disabled={loading}
+            className={`px-6 py-3 bg-[#fff] border-2 hover:border-white text-black rounded-md hover:bg-transparent hover:text-white  transition ${
+              loading ? "opacity-50 cursor-not-allowed" : ""
+            }`}
+          >
+            {loading ? "Processing..." : "Save & Continue"}
+          </button>
+        </header>
 
-      {assignments.length === 0 ? (
-        <p>No hosts found for this podcast.</p>
-      ) : (
-        <div className="space-y-8">
-          {assignments.map((a, idx) => {
-            const selectedVoice = availableVoices.find((v) => v.id === a.voiceId);
-            return (
-              <div key={idx} className="border rounded-lg p-4 shadow-sm hover:shadow-md transition">
-                <h2 className="text-lg font-semibold mb-2">Host: {a.hostName}</h2>
-                <p className="mb-2">
-                  Selected Voice:{" "}
-                  {selectedVoice
-                    ? `${selectedVoice.name} (${selectedVoice.languageCode} · ${selectedVoice.gender})`
-                    : "No voice selected"}
-                </p>
-                <button
-                  onClick={() => setSelectedHostIndex(idx)}
-                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+        {/* Main Content */}
+        <div className="mt-20 space-y-6">
+          {assignments.length === 0 ? (
+            <p className="text-gray-400 text-center">No hosts found for this podcast.</p>
+          ) : (
+            assignments.map((a, idx) => {
+              const selectedVoice = availableVoices.find((v) => v.id === a.voiceId);
+              return (
+                <div
+                  key={idx}
+                  className="bg-[#1a1a1a] rounded-lg shadow-lg p-4 hover:shadow-xl transition-all duration-300 max-w-3xl mx-auto"
                 >
-                  Select Voice
-                </button>
-              </div>
-            );
-          })}
+                  <div className="flex justify-between items-center mb-2">
+                    <div className="flex items-center space-x-2">
+                      <span className="text-gray-400 cursor-move">☰</span>
+                      <label className="font-semibold text-[#fff]">
+                        Host: <span className="text-[#ffffffb6]">{a.hostName}</span>
+                      </label>
+                    </div>
+                    <span className="text-sm text-gray-400">Host {idx + 1}</span>
+                  </div>
+                  <p className="mb-2 text-gray-300">
+                    Selected Voice:{" "}
+                    {selectedVoice
+                      ? `${selectedVoice.name} (${selectedVoice.languageCode} · ${selectedVoice.gender})`
+                      : "No voice selected"}
+                  </p>
+                  <button
+                    onClick={() => setSelectedHostIndex(idx)}
+                    className="px-4 py-2 bg-[#fff] text-black rounded-md hover:bg-[#ffffffa6] transition"
+                  >
+                    Select Voice
+                  </button>
+                </div>
+              );
+            })
+          )}
         </div>
-      )}
 
-      {selectedHostIndex !== -1 && (
-        <VoiceSelectionModal
-          hostName={assignments[selectedHostIndex].hostName}
-          currentVoiceId={assignments[selectedHostIndex].voiceId}
-          availableVoices={availableVoices}
-          onSelect={(voiceId, provider) => {
-            setAssignments((prev) => {
-              const copy = [...prev];
-              copy[selectedHostIndex] = { ...copy[selectedHostIndex], voiceId, provider };
-              return copy;
-            });
-          }}
-          onClose={() => setSelectedHostIndex(-1)}
-          playSample={playSample}
-        />
-      )}
+        {/* Voice Selection Modal */}
+        {selectedHostIndex !== -1 && (
+          <VoiceSelectionModal
+            hostName={assignments[selectedHostIndex].hostName}
+            currentVoiceId={assignments[selectedHostIndex].voiceId}
+            availableVoices={availableVoices}
+            onSelect={(voiceId, provider) => {
+              setAssignments((prev) => {
+                const copy = [...prev];
+                copy[selectedHostIndex] = { ...copy[selectedHostIndex], voiceId, provider };
+                return copy;
+              });
+            }}
+            onClose={() => setSelectedHostIndex(-1)}
+            playSample={playSample}
+          />
+        )}
 
-      <button
-        onClick={handleSubmit}
-        disabled={loading}
-        className={`mt-8 px-6 py-3 rounded-lg text-white ${
-          loading ? "bg-gray-400 cursor-not-allowed" : "bg-green-500 hover:bg-green-600"
-        }`}
-      >
-        {loading ? "Processing..." : "Save Voice Assignments & Continue"}
-      </button>
+        {/* Footer */}
+        <footer className="fixed bottom-0 left-0 right-0 p-4 bg-[#121212]/90 backdrop-blur-md flex justify-center space-x-4">
+          <button
+            onClick={() => router.push("/dashboard")}
+            className="px-6 py-3 border border-gray-300 text-white rounded-md hover:bg-white hover:text-black transition"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSubmit}
+            disabled={loading}
+            className={`px-6 py-3 bg-[#fff] border-2 hover:border-white text-black rounded-md hover:bg-transparent hover:text-white  transition ${
+              loading ? "opacity-50 cursor-not-allowed" : ""
+            }`}
+          >
+            {loading ? "Processing..." : "Save Voice Assignments & Continue"}
+          </button>
+        </footer>
+      </div>
     </main>
   );
 }
@@ -249,18 +302,18 @@ function VoiceSelectionModal({
       onClick={onClose}
     >
       <div
-        className="bg-white p-6 rounded-lg max-w-lg w-full"
+        className="bg-[#1a1a1a] p-6 rounded-lg max-w-lg w-full"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="text-xl font-bold mb-4">Select Voice for {hostName}</h2>
+        <h2 className="text-xl font-bold text-white mb-4">Select Voice for {hostName}</h2>
         <div className="space-y-2 max-h-96 overflow-y-auto">
           {availableVoices.length === 0 ? (
-            <p>No voices available.</p>
+            <p className="text-gray-400">No voices available.</p>
           ) : (
             availableVoices.map((v) => (
               <label
                 key={v.id}
-                className="flex items-center p-2 border rounded cursor-pointer"
+                className="flex items-center p-2 border border-gray-700 rounded cursor-pointer hover:bg-gray-800 hover:text-black transition"
               >
                 <input
                   type="radio"
@@ -271,8 +324,8 @@ function VoiceSelectionModal({
                   className="mr-2"
                 />
                 <div className="flex-1">
-                  <div className="font-medium">{v.name}</div>
-                  <div className="text-xs text-gray-500">
+                  <div className="font-medium text-white">{v.name}</div>
+                  <div className="text-xs text-gray-400">
                     {v.languageCode} · {v.gender}
                   </div>
                 </div>
@@ -283,9 +336,9 @@ function VoiceSelectionModal({
                     e.stopPropagation();
                     playSample(v.id);
                   }}
-                  className="ml-2 px-2 py-1 bg-gray-100 rounded text-sm hover:bg-gray-200"
+                  className="ml-2 px-2 py-1 bg-[#fff] text-black rounded text-sm hover:bg-[#ffffffb6] transition"
                 >
-                  ▶️ Demo
+                  ▶ Demo
                 </button>
               </label>
             ))

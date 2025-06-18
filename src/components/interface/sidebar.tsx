@@ -26,8 +26,8 @@ export default function Sidebar({ isCollapsed, toggleSidebar, history, onNewChat
 
       {/* Sidebar Container */}
       <div
-        className={`glass ${
-          isCollapsed ? 'w-16 md:w-0 lg:w-16' : 'w-64 md:w-64 lg:w-72'
+        className={`glass block ${isCollapsed && 'max-md:hidden'} ${
+          isCollapsed ? 'w-16 md:w-0 lg:w-16 ' : 'w-64 md:w-64 lg:w-72'
         } transition-all duration-300 flex flex-col min-h-screen shadow-lg md:shadow-none fixed top-0 left-0 z-40 lg:static overflow-hidden md:overflow-visible lg:overflow-visible`}
       >
         {/* Header Section */}
