@@ -92,7 +92,6 @@ Perfect for social media content, video ads, and more
 function CardStack() {
   return (
     <div className="relative w-full h-full">
-      {/* Layered cards with avatars */}
       <motion.div
         initial={{ x: 100, y: 0, opacity: 0 }}
         animate={{ x: 0, y: 0, opacity: 1 }}

@@ -52,14 +52,12 @@ export default function Home() {
   };
 
   const handleNewChat = () => {
-    // Save current chat to history if there's a title
     if (formData.title.trim()) {
       setHistory((prev) => [
         ...prev,
         { id: prev.length + 1, title: formData.title },
       ]);
     }
-    // Reset form for a new chat
     setFormData({
       title: '',
       hosts: [],

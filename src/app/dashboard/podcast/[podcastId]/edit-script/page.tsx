@@ -66,7 +66,6 @@ const EditScriptPage = () => {
 
   const handleAISuggestions = async (index) => {
     const segment = segments[index];
-    // Placeholder for AI suggestion API call
     const response = await fetch('/api/ai-suggestions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -78,7 +77,6 @@ const EditScriptPage = () => {
 
   const handleVoicePreview = async (index) => {
     const segment = segments[index];
-    // Placeholder for text-to-speech API call
     const response = await fetch('/api/text-to-speech', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -107,7 +105,6 @@ const EditScriptPage = () => {
   return (
     <main className="min-h-screen bg-[#121212] p-4 md:p-6 font-orbitron">
       <div className="max-w-6xl mx-auto">
-        {/* Header */}
         <header className="fixed top-0 left-0 right-0 z-10 bg-[#121212]/90 backdrop-blur-md p-4 flex justify-between items-center">
           <button
             onClick={() => router.push("/dashboard")}
@@ -121,14 +118,13 @@ const EditScriptPage = () => {
           <button
             onClick={handleSave}
             disabled={isSaving}
-            className={`px-6 py-3 bg-[#fff] text-black rounded-md hover:bg-transparent hover:text-white border-2 hover:border-amber-50 transition ${isSaving ? "opacity-50 cursor-not-allowed" : ""
+            className={`px-6 py-3 bg-[#fff] text-black block max-md:hidden rounded-md hover:bg-transparent hover:text-white border-2 hover:border-amber-50 transition ${isSaving ? "opacity-50 cursor-not-allowed" : ""
               }`}
           >
             {isSaving ? "Saving..." : "save"}
           </button>
         </header>
 
-        {/* Main Content */}
         <div className="mt-20 space-y-6">
           {segments.length === 0 ? (
             <p className="text-gray-400 text-center">No segments found.</p>
@@ -168,7 +164,6 @@ const EditScriptPage = () => {
           )}
         </div>
 
-        {/* Footer */}
         <footer className="fixed bottom-0 left-0 right-0 p-4 bg-[#121212]/90 backdrop-blur-md flex justify-center space-x-4">
           <button
             onClick={() => router.push("/dashboard")}

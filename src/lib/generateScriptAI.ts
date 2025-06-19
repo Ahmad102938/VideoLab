@@ -1,5 +1,3 @@
-// src/lib/generateScriptAI.ts
-
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { PodcastPayload, Script } from "@/types";
 

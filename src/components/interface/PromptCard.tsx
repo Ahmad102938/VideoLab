@@ -1,4 +1,3 @@
-// components/PromptCard.tsx
 import { ReactNode } from 'react';
 
 interface PromptCardProps {

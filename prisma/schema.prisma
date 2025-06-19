@@ -27,7 +27,7 @@ model Podcast {
   userId          String
   title           String
   description     String             @default("")
-  hosts           String[]           @default([])        // <-- “Alice”, “Bob”, etc.
+  hosts           String[]           @default([])      
   status          String             @default("DRAFT_PENDING_REVIEW")
   finalAudioUrl   String?
   createdAt       DateTime           @default(now())
@@ -41,9 +41,9 @@ model HostAssignment {
   id            String    @id @default(cuid())
   podcastId     String
   hostName      String
-  voiceId       String?                      // unknown until user picks
-  provider      String?                      // unknown until user picks
-  segmentIndex  Int?       @default(0)        // if you want per‐segment detail
+  voiceId       String?
+  provider      String?
+  segmentIndex  Int?       @default(0)
 
   podcast       Podcast    @relation(fields: [podcastId], references: [id])
 
@@ -54,8 +54,8 @@ model Script {
   id         String   @id @default(cuid())
   podcastId  String   @unique
   fullText   String
-  segments   Json          // array of { hostName, text, segmentIndex }
-  audioUrls  String[]  @default([])    // <— new: store each S3 URL per segment
+  segments   Json         
+  audioUrls  String[]  @default([])    
   status     String    @default("READY_FOR_ASSIGNMENT")
   updatedAt  DateTime  @updatedAt
 

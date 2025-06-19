@@ -7,7 +7,6 @@ export async function PATCH(
   req: NextRequest,
   { params }: { params: { podcastId: string } }
 ) {
-  // Await params before using them:
   const { podcastId } = await params;
   const { userId } = getAuth(req);
 
@@ -15,7 +14,6 @@ export async function PATCH(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  // Ensure podcast belongs to this user
   const existingPodcast = await prisma.podcast.findUnique({
     where: { id: podcastId },
     select: { userId: true },
@@ -24,7 +22,6 @@ export async function PATCH(
     return NextResponse.json({ error: "Podcast not found or access denied" }, { status: 404 });
   }
 
-  // Parse incoming JSON
   let body: {
     segments?: Array<{ hostName: string; text: string; segmentIndex: number }>;
     status?: string;

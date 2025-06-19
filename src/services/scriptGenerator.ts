@@ -9,7 +9,7 @@ export class ScriptGeneratorService {
   ): Promise<{ text: string }> {
     const ScriptDraft = await generateScriptWithAI(payload);
     if (ScriptDraft) {
-      return ScriptDraft; // { text: "Alice: …\nBob: …" }
+      return ScriptDraft; 
     } else {
       throw new Error("Failed to generate script");
     }

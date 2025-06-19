@@ -1,4 +1,3 @@
-
 import { NextRequest, NextResponse } from "next/server";
 import { getAuth } from "@clerk/nextjs/server";
 import prisma from "@/lib/prisma";
@@ -43,18 +42,16 @@ export async function GET(
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    // If there are NO HostAssignment rows, fall back to the bare hosts[]
     let assignments: Array<{ hostName: string; voiceId: string; provider: string }> = [];
 
     if (podcast.hostAssignments.length > 0) {
-      // Use the real assignments
+      
       assignments = podcast.hostAssignments.map((ha) => ({
         hostName: ha.hostName,
         voiceId: ha.voiceId || "",
         provider: ha.provider || "",
       }));
     } else {
-      // No assignments yet → build one per name in podcast.hosts
       assignments = podcast.hosts.map((h) => ({
         hostName: h,
         voiceId: "",

@@ -44,7 +44,6 @@ export default function Navbar() {
             <span className="text-[#CD1B17] font-bold text-xl md:text-2xl">VideoLab</span>
           </Link>
 
-          {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-1">
             {navItems.map((item) => (
               <Link
@@ -78,7 +77,6 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* Mobile Menu Button */}
           <div className="flex items-center md:hidden">
             {isLoaded && isSignedIn && <UserButton afterSignOutUrl="/" className="mr-2" />}
             <button
@@ -91,7 +89,6 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Mobile Navigation */}
       {isMobileMenuOpen && (
         <motion.div
           initial={{ opacity: 0, height: 0 }}

@@ -3,7 +3,6 @@ import AWS from 'aws-sdk';
 import { PrismaClient } from '@prisma/client';
 import { Queue } from 'bullmq';
 
-// Define job data type
 type TTSJobData = {
   text: string;
   voiceId: string;
@@ -12,10 +11,8 @@ type TTSJobData = {
   podcastId: string;
 };
 
-// Initialize AWS SDK and Prisma
 const prisma = new PrismaClient();
 
-// Configure AWS credentials and region
 AWS.config.update({
   accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
@@ -30,7 +27,7 @@ const mergeQueue = new Queue('merge-queue', {
   connection: { host: 'localhost', port: 6379 },
 });
 
-// Worker to process TTS jobs (using neural engine only)
+// Worker to process TTS jobs 
 const worker = new Worker(
   'tts-queue',
   async (job: Job<TTSJobData>) => {
@@ -80,20 +77,17 @@ const worker = new Worker(
       Expires: 7 * 24 * 3600,
     });
 
-    // Update script record
     const script = await prisma.script.findUnique({ where: { podcastId } });
     if (!script) {
       throw new Error('Script not found');
     }
 
-    // Ensure audioUrls array matches number of segments
     const segments = Array.isArray(script.segments) ? script.segments : [];
     if (segments.length === 0) {
       throw new Error(`No segments found for script with podcastId: ${podcastId}`);
     }
     const total = segments.length;
 
-    // Validate segmentIndex
     if (
       typeof segmentIndex !== 'number' ||
       segmentIndex < 0 ||
@@ -103,24 +97,19 @@ const worker = new Worker(
     }
 
     const updated = Array(total).fill('');
-    // Copy existing URLs if any
     (script.audioUrls || []).forEach((u, idx) => {
       if (u) updated[idx] = u;
     });
-    // Set current segment URL
     updated[segmentIndex] = url;
 
-    // Persist
     await prisma.script.update({
       where: { podcastId },
       data: { audioUrls: updated },
     });
 
-    // Log current state
     console.log(`Updated audioUrls for podcast ${podcastId}:`, updated);
     console.log(`Segments for podcast ${podcastId}:`, segments);
 
-    // Check completion
     const allDone = updated.every((u) => u !== '');
     console.log(`All segments done for podcast ${podcastId}: ${allDone}`);
 

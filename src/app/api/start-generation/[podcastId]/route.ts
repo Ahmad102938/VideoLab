@@ -14,7 +14,6 @@ export async function POST(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  // Verify script exists & belongs to this user
   const scriptRecord = await prisma.script.findUnique({
     where: { podcastId },
     include: {
@@ -36,7 +35,6 @@ export async function POST(
     );
   }
 
-  // Update status → SYNTHESIS_QUEUED
   await prisma.script.update({
     where: { podcastId },
     data: { status: "SYNTHESIS_QUEUED" },
@@ -46,10 +44,8 @@ export async function POST(
     data: { status: "SYNTHESIS_QUEUED" },
   });
 
-  // Enqueue a job
   await synthesisQueue.add("synthesize-podcast", { podcastId });
 
-  // Fetch the script and segments
   const script = await prisma.script.findUnique({
     where: { podcastId },
   });
@@ -68,13 +64,11 @@ export async function POST(
       )
     : [];
 
-  // Fetch host assignments for provider/voiceId
   const hostAssignments = await prisma.hostAssignment.findMany({ where: { podcastId } });
   const hostMap = Object.fromEntries(
     hostAssignments.map((h) => [h.hostName, { voiceId: h.voiceId, provider: h.provider }])
   );
 
-  // Enqueue a job for each segment
   for (const segment of segments) {
     if (!segment) continue;
     const assignment = hostMap[segment.hostName] || {};

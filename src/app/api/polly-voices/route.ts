@@ -1,14 +1,11 @@
-// src/app/api/polly-voices/route.ts
-
 import { NextRequest, NextResponse } from "next/server";
 import polly from "@/lib/polly";
 
 export async function GET(req: NextRequest) {
   try {
-    // Call AWS Polly to get the list of voices
+
     const data = await polly.describeVoices({ Engine: "neural" }).promise();
 
-    // Map the response to our desired format
     const voices = (data.Voices || []).map((v) => ({
       id: v.Id,            
       name: v.Name,         

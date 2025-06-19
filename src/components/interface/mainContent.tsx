@@ -1,4 +1,3 @@
-// components/MainContent.tsx
 import PodcastForm from './PodcastForm';
 import { Dispatch, SetStateAction } from 'react';
 import { useUser } from '@clerk/nextjs';

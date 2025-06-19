@@ -6,7 +6,6 @@ import fs from 'fs/promises';
 import path from 'path';
 import axios from 'axios';
 
-// Initialize Prisma and AWS S3
 const prisma = new PrismaClient();
 AWS.config.update({
   accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
@@ -15,7 +14,6 @@ AWS.config.update({
 });
 const s3 = new AWS.S3();
 
-// Configure FFmpeg paths
 ffmpeg.setFfmpegPath('C:/ffmpeg/ffmpeg-2025-06-11-git-f019dd69f0-full_build/bin/ffmpeg.exe'); 
 ffmpeg.setFfprobePath('C:/ffmpeg/ffmpeg-2025-06-11-git-f019dd69f0-full_build/bin/ffprobe.exe'); 
 
@@ -109,10 +107,10 @@ const mergeWorker = new Worker(
       const finalAudioUrl = s3.getSignedUrl('getObject', {
         Bucket: bucket,
         Key: s3Key,
-        Expires: 7 * 24 * 3600, // 7 days
+        Expires: 7 * 24 * 3600, 
       });
 
-      // Update podcast with final audio URL
+      
       await prisma.podcast.update({
         where: { id: podcastId },
         data: { finalAudioUrl, status: 'AUDIO_READY' },
@@ -134,7 +132,7 @@ const mergeWorker = new Worker(
     }
   },
   {
-    connection: { host: 'localhost', port: 6379 }, // Adjust if using a different Redis setup
+    connection: { host: 'localhost', port: 6379 }, 
   }
 );
 

@@ -1,4 +1,3 @@
-// src/app/api/generate-script/route.ts
 export const runtime = "nodejs";
 import { NextRequest, NextResponse } from "next/server";
 import { getAuth, currentUser } from "@clerk/nextjs/server";
@@ -12,8 +11,7 @@ export async function POST(req: NextRequest) {
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-
-  // Fetch the full Clerk User 
+ 
   let clerkUser;
   try {
     clerkUser = await currentUser();
@@ -25,7 +23,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  // Grab primaryEmail
   const primaryEmail = clerkUser.emailAddresses?.find(
     (e) => e.id === clerkUser.primaryEmailAddressId
   )?.emailAddress;
@@ -54,7 +51,6 @@ console.log("prisma.user is", (prisma as any)?.user);
     return NextResponse.json({ error: "Failed to sync user" }, { status: 500 });
   }
 
-  // Parse incoming JSON payload
   let payload: PodcastPayload;
   try {
     payload = await req.json();
@@ -63,7 +59,6 @@ console.log("prisma.user is", (prisma as any)?.user);
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
-  // Validate required fields
   const { title, description, hosts, style, length_minutes, user_id } = payload;
   if (
     !title ||
@@ -80,7 +75,6 @@ console.log("prisma.user is", (prisma as any)?.user);
     return NextResponse.json({ error: "User ID mismatch" }, { status: 403 });
   }
 
-  // Create a new Podcast record, storing hosts[] immediately,
   let podcast;
   try {
     podcast = await prisma.podcast.create({
@@ -97,7 +91,6 @@ console.log("prisma.user is", (prisma as any)?.user);
     return NextResponse.json({ error: "Failed to create podcast" }, { status: 500 });
   }
 
-  // Generate the script text from AI ──
   let aiResult: { text: string };
   try {
     aiResult = await new ScriptGeneratorService().generateScript(payload);
@@ -113,7 +106,7 @@ const lines = fullText.split(/\r?\n/).filter((line) => line.trim() !== "");
 const segments: Array<{ hostName: string; text: string; segmentIndex: number }> = [];
 
 lines.forEach((line, idx) => {
-  // Match lines with a clear "HostName: text" format
+
   const match = line.match(/^\*+\s*\[?([A-Za-z0-9_ -]+)\]?\s*:\*+\s*(.+)$/) ||
                 line.match(/^\[?([A-Za-z0-9_ -]+)\]?\s*:\s*(.+)$/);
 
@@ -121,14 +114,12 @@ lines.forEach((line, idx) => {
     const hostName = match[1].trim();
     const spokenText = match[2].trim();
 
-    // Check if the hostName matches any in payload.hosts
     const matchedHost = hosts.find(
       (h) => h.trim().toLowerCase() === hostName.toLowerCase()
     );
     if (matchedHost) {
       segments.push({ hostName: matchedHost, text: spokenText, segmentIndex: idx });
     } else {
-      // If no match, attribute to the first host
       segments.push({
         hostName: hosts[0],
         text: line,
@@ -136,7 +127,6 @@ lines.forEach((line, idx) => {
       });
     }
   } else {
-    // No clear "HostName:" tag → attribute to the first host
     segments.push({
       hostName: hosts[0],
       text: line,
@@ -145,7 +135,6 @@ lines.forEach((line, idx) => {
   }
 });
 
-  // Save the Script record with fullText + segments JSON ──
   let script;
   try {
     script = await prisma.script.create({
@@ -161,7 +150,6 @@ lines.forEach((line, idx) => {
     return NextResponse.json({ error: "Failed to save script" }, { status: 500 });
   }
 
-  // Return the “draft” info so the front end can show/edit it ──
   return NextResponse.json(
     {
       podcastId: podcast.id,

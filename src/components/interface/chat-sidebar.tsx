@@ -56,7 +56,6 @@ export function ChatSidebar() {
   }
 
   const handleRenameChat = (id: string) => {
-    // This would open a rename dialog in a real implementation
     console.log("Rename chat:", id)
   }
 

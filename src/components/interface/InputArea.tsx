@@ -1,4 +1,3 @@
-// components/InputArea.tsx
 export default function InputArea() {
   return (
     <div className="mt-8">

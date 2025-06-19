@@ -8,7 +8,6 @@ export default function AIEmailHero() {
     <section className="bg-[#FFA896] py-12 lg:py-10">
       <div className="container mx-auto px-4 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
-          {/* Left Content */}
           <div className="space-y-6 lg:space-y-8">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-[#38000A] leading-tight">
               Generate a multi-host AI PodCast using by VideoLab
@@ -37,7 +36,6 @@ export default function AIEmailHero() {
             </div>
           </div>
 
-          {/* Right Image */}
           <div className="relative flex justify-center items-center lg:justify-end">
             <div className="relative w-full max-w-md lg:max-w-lg xl:max-w-xl">
               <Image
