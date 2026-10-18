@@ -1,5 +1,5 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { PodcastPayload, Script } from "@/types";
+import { PodcastPayload } from "@/types";
 
 export async function generateScriptWithAI(
   payload: PodcastPayload

@@ -9,7 +9,7 @@ import pod from "../../assets/demoPodCast.mp3"
 export default function PodcastSection() {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, amount: 0.2 })
-  const audioRef = useRef(null)
+  const audioRef = useRef<HTMLAudioElement>(null)
   const [isPlaying, setIsPlaying] = useState(false)
 
   const features = [

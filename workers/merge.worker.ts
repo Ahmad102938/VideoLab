@@ -63,8 +63,8 @@ const mergeWorker = new Worker(
             console.log(`Successfully downloaded clip ${index} for podcast ${podcastId}`);
             return buffer;
           } catch (error) {
-            console.error(`Failed to download clip ${index} from ${url}:`, error.message);
-            throw new Error(`Failed to download clip ${index}: ${error.message}`);
+            console.error(`Failed to download clip ${index} from ${url}:`, (error as Error).message);
+            throw new Error(`Failed to download clip ${index}: ${(error as Error).message}`);
           }
         })
       );
@@ -118,7 +118,7 @@ const mergeWorker = new Worker(
 
       console.log(`Merged audio for podcast ${podcastId}: ${finalAudioUrl}`);
     } catch (error) {
-      console.error(`Merge job failed for podcast ${podcastId}:`, error.message);
+      console.error(`Merge job failed for podcast ${podcastId}:`, (error as Error).message);
       await prisma.podcast.update({
         where: { id: podcastId },
         data: { status: 'AUDIO_FAILED' },

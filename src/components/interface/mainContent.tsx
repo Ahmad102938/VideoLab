@@ -2,13 +2,7 @@ import PodcastForm from './PodcastForm';
 import { Dispatch, SetStateAction } from 'react';
 import { useUser } from '@clerk/nextjs';
 
-interface PodcastPayload {
-  title: string;
-  hosts: string[];
-  style: string;
-  length_minutes: number;
-  user_id: string;
-}
+import { PodcastPayload } from '@/types';
 
 interface MainContentProps {
   formData: PodcastPayload;

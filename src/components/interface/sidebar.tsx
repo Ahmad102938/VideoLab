@@ -1,8 +1,12 @@
 import Image from 'next/image';
-import { FaPlus, FaSearch, FaHistory, FaCog, FaBars, FaTimes } from 'react-icons/fa';
+import { FaPlus, FaHistory, FaBars, FaTimes } from 'react-icons/fa';
 import logo from '@/assets/mic.webp';
 import { UserButton } from '@clerk/nextjs';
-import { getCurrentUser } from '@/action/getCurrentUser';
+
+interface Chat {
+  id: number;
+  title: string;
+}
 
 interface SidebarProps {
   isCollapsed: boolean;

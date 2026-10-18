@@ -3,20 +3,13 @@ import { useState, useEffect } from 'react';
 import Sidebar from '@/components/interface/sidebar';
 import MainContent from '@/components/interface/mainContent';
 import { useUser } from '@clerk/nextjs';
+import { PodcastPayload } from '@/types';
 
 interface Chat {
   id: number;
   title: string;
 }
 
-interface PodcastPayload {
-  title: string;
-  hosts: string[];
-  style: string;
-  length_minutes: number;
-  description?: string;
-  user_id: string;
-}
 
 export default function Home() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);

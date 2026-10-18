@@ -1,7 +1,7 @@
 // src/services/scriptGenerator.ts
 
 import { generateScriptWithAI } from "@/lib/generateScriptAI";
-import { PodcastPayload, Script } from "@/types";
+import { PodcastPayload } from "@/types";
 
 export class ScriptGeneratorService {
   async generateScript(

@@ -2,14 +2,7 @@ import { Dispatch, SetStateAction } from 'react';
 import { useState } from 'react';
 import { useRouter} from "next/navigation";
 
-interface PodcastPayload {
-  title: string;
-  hosts: string[];
-  style: string;
-  length_minutes: number;
-  description: string;
-  user_id: string;
-}
+import { PodcastPayload } from '@/types';
 
 interface PodcastFormProps {
   formData: PodcastPayload;
@@ -82,8 +75,8 @@ export default function PodcastForm({ formData, setFormData }: PodcastFormProps)
       setScriptId(data.scriptId);
       console.log('Script generated and stored with ID:', data.scriptId);
       console.log(data);
-    } catch (err: any) {
-      setError(err.message || 'An error occurred while generating the script');
+    } catch (err) {
+      setError((err instanceof Error && err.message) || 'An error occurred while generating the script');
     } finally {
       setLoading(false);
     }

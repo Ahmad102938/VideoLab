@@ -7,12 +7,18 @@ import { useAuth } from "@clerk/nextjs";
 // Import Orbitron font for a futuristic look
 // import 'https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap';
 
+type Segment = {
+  hostName: string;
+  text: string;
+  segmentIndex: number;
+};
+
 const EditScriptPage = () => {
   const { getToken } = useAuth();
   const { podcastId } = useParams();
   const router = useRouter();
 
-  const [segments, setSegments] = useState([]);
+  const [segments, setSegments] = useState<Segment[]>([]);
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -34,7 +40,7 @@ const EditScriptPage = () => {
     loadScript();
   }, [podcastId, getToken]);
 
-  const handleSegmentChange = (index, newText) => {
+  const handleSegmentChange = (index: number, newText: string) => {
     setSegments((prev) =>
       prev.map((seg, i) => (i === index ? { ...seg, text: newText } : seg))
     );
@@ -64,7 +70,7 @@ const EditScriptPage = () => {
     setIsSaving(false);
   };
 
-  const handleAISuggestions = async (index) => {
+  const handleAISuggestions = async (index: number) => {
     const segment = segments[index];
     const response = await fetch('/api/ai-suggestions', {
       method: 'POST',
@@ -73,18 +79,6 @@ const EditScriptPage = () => {
     });
     const data = await response.json();
     alert(`AI Suggestions for segment ${ index + 1 }: ${ data.suggestions }`);
-  };
-
-  const handleVoicePreview = async (index) => {
-    const segment = segments[index];
-    const response = await fetch('/api/text-to-speech', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text: segment.text }),
-    });
-    const data = await response.json();
-    const audio = new Audio(data.audioUrl);
-    audio.play();
   };
 
   if (loading) {

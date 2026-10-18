@@ -78,7 +78,7 @@ export default function Navbar() {
           </div>
 
           <div className="flex items-center md:hidden">
-            {isLoaded && isSignedIn && <UserButton afterSignOutUrl="/" className="mr-2" />}
+            {isLoaded && isSignedIn && <div className="mr-2"><UserButton afterSignOutUrl="/" /></div>}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className={`p-2 rounded-md text-gray-700 bg-transparent ${isScrolled && "text-white"}`}

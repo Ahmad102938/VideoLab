@@ -6,7 +6,7 @@ import { synthesisQueue } from "@/lib/queue";
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { podcastId: string } }
+  { params }: { params: Promise<{ podcastId: string }> }
 ) {
   const { podcastId } = await params;
   const { userId } = getAuth(req);
