@@ -10,7 +10,7 @@ export default function BuildWithSection() {
   const [isVideoHovered, setIsVideoHovered] = useState(false)
 
       const [isPlaying, setIsPlaying] = useState(true); // Video starts playing
-      const videoRef = useRef(null);
+      const videoRef = useRef<HTMLVideoElement>(null);
 
     
 

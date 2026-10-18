@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import polly from "@/lib/polly";
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
 
     const data = await polly.describeVoices({ Engine: "neural" }).promise();

@@ -29,7 +29,7 @@ const promptSuggestions = [
 
 export default function ChatInterface() {
   const [input, setInput] = React.useState("")
-  const [userName, setUserName] = React.useState("John")
+  const [userName] = React.useState("John")
   const [characterCount, setCharacterCount] = React.useState(0)
   const maxCharacters = 1000
 

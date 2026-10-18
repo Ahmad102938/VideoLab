@@ -23,8 +23,6 @@ export default function StatusPage() {
   const [readyTime, setReadyTime] = useState<string>("");
 
   useEffect(() => {
-    let interval: NodeJS.Timer;
-
     async function fetchStatus() {
       const token = await getToken();
       const currentTime = new Date().toLocaleString("en-US", {
@@ -59,7 +57,7 @@ export default function StatusPage() {
     }
 
     fetchStatus();
-    interval = setInterval(fetchStatus, 5000);
+    const interval = setInterval(fetchStatus, 5000);
 
     return () => clearInterval(interval);
   }, [podcastId, getToken]);

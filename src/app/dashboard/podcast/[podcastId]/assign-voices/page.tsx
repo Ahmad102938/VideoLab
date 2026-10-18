@@ -62,10 +62,10 @@ export default function AssignVoicesPage() {
         const { podcast } = await resHosts.json();
         if (isMounted) {
           setAssignments(
-            (podcast.hostAssignments ?? podcast.hosts ?? []).map((h: any) => ({
+            (podcast.hostAssignments ?? podcast.hosts ?? []).map((h: string | Partial<Assignment>) => ({
               hostName: typeof h === "string" ? h : h.hostName,
-              voiceId: h.voiceId || "",
-              provider: h.provider || "",
+              voiceId: (typeof h !== "string" && h.voiceId) || "",
+              provider: (typeof h !== "string" && h.provider) || "",
             }))
           );
         }
@@ -304,7 +304,6 @@ export default function AssignVoicesPage() {
             onSelect={(voiceId, provider) => {
               setAssignments((prev) => {
                 const copy = [...prev];
-                const selectedVoice = availableVoices.find((v) => v.id === voiceId);
                 copy[selectedHostIndex] = {
                   ...copy[selectedHostIndex],
                   voiceId,

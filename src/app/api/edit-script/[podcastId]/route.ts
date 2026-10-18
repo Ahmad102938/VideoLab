@@ -2,10 +2,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuth } from "@clerk/nextjs/server";
 import prisma from "@/lib/prisma";
+import type { Prisma } from "@prisma/client";
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { podcastId: string } }
+  { params }: { params: Promise<{ podcastId: string }> }
 ) {
   const { podcastId } = await params;
   const { userId } = getAuth(req);
@@ -28,7 +29,7 @@ export async function PATCH(
   };
   try {
     body = await req.json();
-  } catch (err) {
+  } catch {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
@@ -38,7 +39,7 @@ export async function PATCH(
   }
 
   // Build update payload
-  const dataToUpdate: any = {};
+  const dataToUpdate: Prisma.ScriptUpdateInput = {};
   if (Array.isArray(segments)) {
     const fullText = segments
       .map((seg) => `${seg.hostName}: ${seg.text}`)

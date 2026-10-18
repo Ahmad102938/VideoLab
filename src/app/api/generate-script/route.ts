@@ -1,7 +1,7 @@
 export const runtime = "nodejs";
 import { NextRequest, NextResponse } from "next/server";
 import { getAuth, currentUser } from "@clerk/nextjs/server";
-import { PodcastPayload, Script } from "@/types";
+import { PodcastPayload } from "@/types";
 import { ScriptGeneratorService } from "@/services/scriptGenerator";
 import prisma from "../../../lib/prisma";  
 
@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
   }
 
   console.log("prisma is", prisma);
-console.log("prisma.user is", (prisma as any)?.user);
+console.log("prisma.user is", prisma?.user);
 
   try {
     await prisma.user.upsert({
@@ -141,7 +141,7 @@ lines.forEach((line, idx) => {
       data: {
         podcastId: podcast.id,
         fullText: fullText,
-        segments: segments as any,           
+        segments: segments,           
         status: "READY_FOR_ASSIGNMENT",      
       },
     });

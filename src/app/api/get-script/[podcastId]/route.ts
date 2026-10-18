@@ -4,7 +4,7 @@ import prisma from "@/lib/prisma";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { podcastId: string } }
+  { params }: { params: Promise<{ podcastId: string }> }
 ) {
   const { podcastId } = await params;
   const { userId } = getAuth(req);

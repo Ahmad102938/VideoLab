@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAuth, currentUser } from "@clerk/nextjs/server";
+import { getAuth } from "@clerk/nextjs/server";
 import prisma from "@/lib/prisma";
 
 type VoiceAssignment = {
@@ -8,7 +8,7 @@ type VoiceAssignment = {
   provider: string;
 };
 
-export async function POST(req: NextRequest, context: { params: { podcastId: string } }) {
+export async function POST(req: NextRequest, context: { params: Promise<{ podcastId: string }> }) {
   const params = await context.params;
   const { podcastId } = params;
   const { userId } = getAuth(req);
@@ -30,7 +30,7 @@ export async function POST(req: NextRequest, context: { params: { podcastId: str
   let body: { assignments?: VoiceAssignment[] };
   try {
     body = await req.json();
-  } catch (err) {
+  } catch {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
